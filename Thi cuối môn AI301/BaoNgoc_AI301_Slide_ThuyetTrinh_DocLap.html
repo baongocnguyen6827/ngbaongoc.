@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảo Ngọc AI — Retail Agent OS • Bài Thuyết Trình AI301 (Chuẩn Hóa 4 Bước Vận Hành)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Segoe UI', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff2f5;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(254, 205, 211, 0.38) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(253, 164, 175, 0.28) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(255, 228, 230, 0.45) 0px, transparent 60%);
+            background-attachment: fixed;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(254, 205, 211, 0.85);
+            box-shadow: 0 12px 36px -8px rgba(244, 63, 94, 0.12), 0 4px 16px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        .glass-card-subtle {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(254, 205, 211, 0.65);
+        }
+
+        .slide-transition {
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide-hidden {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.98);
+        }
+
+        .slide-active {
+            display: flex !important;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 16:9 Presentation Canvas */
+        .presentation-canvas {
+            width: 100%;
+            max-width: 1400px;
+            aspect-ratio: 16 / 9;
+            max-height: calc(100vh - 120px);
+        }
+
+        @media (max-aspect-ratio: 16/9) {
+            .presentation-canvas {
+                width: calc(100vw - 32px);
+                height: auto;
+            }
+        }
+
+        /* Custom Scrollbar for notes */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(254, 205, 211, 0.2);
+            border-radius: 9999px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #fda4af;
+            border-radius: 9999px;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                overflow: visible !important;
+            }
+            header, footer, #speakerNotesPanel, #overviewModal {
+                display: none !important;
+            }
+            .presentation-canvas {
+                max-width: 100% !important;
+                aspect-ratio: auto !important;
+                max-height: none !important;
+                box-shadow: none !important;
+                border: none !important;
+                page-break-after: always;
+            }
+            .slide-hidden {
+                display: flex !important;
+                opacity: 1 !important;
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between items-center p-3 sm:p-5 text-slate-800">
+
+    <!-- TOP HEADER & CONTROLS -->
+    <header class="w-full max-w-7xl flex items-center justify-between px-4 py-2.5 rounded-2xl glass-card mb-2 z-30">
+        <div class="flex items-center gap-3">
+            <a href="javascript:void(0)" class="flex items-center gap-2 group">
+                <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white flex items-center justify-center font-black text-xs shadow-md shadow-rose-500/30">
+                    BN
+                </div>
+                <div>
+                    <span class="font-black text-sm tracking-tight text-slate-900 group-hover:text-rose-600 transition">BẢO NGỌC AI</span>
+                    <span class="text-[10px] font-mono text-rose-500 font-bold block -mt-1">RETAIL AGENT OS</span>
+                </div>
+            </a>
+            <div class="h-5 w-px bg-rose-200 hidden sm:block"></div>
+            <div class="flex items-center gap-2">
+                <div class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                    AI301 Final Project
+                </div>
+                <h1 class="text-sm font-extrabold text-slate-800 hidden md:block">Kiến Trúc AI Agent &amp; Quy Trình 4 Bước Vận Hành Chuẩn Hóa</h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+            <!-- Slide Counter Pill -->
+            <div class="px-3.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 font-mono text-xs font-black flex items-center gap-1.5 shadow-2xs">
+                <i class="fa-solid fa-layer-group text-[11px]"></i>
+                <span id="currentSlideLabel">1</span>
+                <span class="text-slate-400">/</span>
+                <span>8</span>
+            </div>
+
+            <!-- Notes Button -->
+            <button onclick="toggleSpeakerNotes()" id="btnToggleNotes" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Bật/Tắt Lời Thuyết Trình (Phím N)">
+                <i class="fa-solid fa-microphone-lines text-rose-500"></i>
+                <span class="hidden sm:inline">Lời Thuyết Trình</span>
+            </button>
+
+            <!-- Overview Button -->
+            <button onclick="toggleOverviewModal()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Xem Toàn Bộ Slide Dạng Lưới (Phím O)">
+                <i class="fa-solid fa-grid-2 text-rose-500"></i>
+                <span class="hidden sm:inline">Tất Cả Slide</span>
+            </button>
+
+            <!-- Fullscreen Button -->
+            <button onclick="toggleFullscreen()" class="w-8 h-8 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 text-slate-700 flex items-center justify-center transition cursor-pointer shadow-2xs" title="Toàn Màn Hình (Phím F)">
+                <i id="fullscreenIcon" class="fa-solid fa-expand text-xs text-rose-500"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- PROGRESS LINE -->
+    <div id="progressBarContainer" class="w-full max-w-7xl h-1 bg-rose-100 rounded-full overflow-hidden mb-2">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-rose-500 to-pink-500 transition-all duration-300" style="width: 12.5%;"></div>
+    </div>
+
+    <!-- MAIN PRESENTATION CANVAS (16:9 RATIO) -->
+    <main class="w-full flex-1 flex items-center justify-center overflow-hidden relative">
+        <div class="presentation-canvas glass-card rounded-3xl p-6 sm:p-10 flex flex-col justify-between overflow-y-auto custom-scroll relative shadow-2xl">
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 1: COVER SLIDE (TRANG BÌA BÁO CÁO)                       -->
+            <!-- ============================================================= -->
+            <div id="slide-1" class="slide-transition slide-active flex-col justify-between h-full space-y-6">
+                <div class="w-full h-1.5 bg-gradient-to-r from-rose-500 via-pink-500 to-amber-500 rounded-full"></div>
+
+                <div class="flex-1 flex flex-col justify-center space-y-5">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-600 text-xs font-black w-max">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>BẢO NGỌC AI — RETAIL AGENT OS • BÁO CÁO DỰ ÁN THI CUỐI MÔN AI301</span>
+                    </div>
+
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 leading-tight">
+                        TỐI ƯU HÓA QUẢN TRỊ VẬN HÀNH<br>&amp; ĐỐI SOÁT DOANH THU BÁN LẺ<br>
+                        <span class="bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">BẰNG TRÍ TUỆ NHÂN TẠO AI AGENT</span>
+                    </h2>
+
+                    <p class="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
+                        Hệ điều hành tác nhân AI tự động hóa khử 100% rủi ro đếm trùng, bóc tách triệt để đơn hủy &amp; hoàn trả, hoàn nhập giá vốn COGS và kiểm toán đối soát chéo 3 bên theo quy trình 4 bước chuẩn hóa.
+                    </p>
+                </div>
+
+                <!-- Footer Meta Box -->
+                <div class="pt-4 border-t border-rose-100 flex flex-wrap items-center justify-between gap-4 text-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-black text-base shadow-inner">
+                            <i class="fa-solid fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <p class="font-extrabold text-slate-900 text-sm">Nguyễn Bảo Ngọc</p>
+                            <p class="text-slate-500 font-medium">Trưởng Dự Án • AI Retail Lead (Môn AI301)</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 font-mono text-[11px]">
+                        <span class="px-3 py-1 rounded-lg bg-white border border-rose-200 text-slate-700 font-bold"><i class="fa-solid fa-microchip text-rose-500 mr-1.5"></i>Google Antigravity &amp; Gemini API</span>
+                        <span class="px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold"><i class="fa-solid fa-shield-halved text-emerald-500 mr-1.5"></i>4 AI Guardrails &amp; Safe Gate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 2: MỤC ĐÍCH SỬ DỤNG CỦA AI AGENT                         -->
+            <!-- ============================================================= -->
+            <div id="slide-2" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TRỌNG TÂM 1 • TẠI SAO DOANH NGHIỆP CẦN AI AGENT NÀY?
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Mục Đích Sử Dụng Của AI Agent Trong Vận Hành Bán Lẻ</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Xóa bỏ hoàn toàn quy trình đối soát thủ công cuối tháng dễ sai lệch, chuyển sang kiểm toán tự động chuẩn xác.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 my-auto">
+                    <!-- Mục đích 1 -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-rose-200 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-black text-sm mb-2.5">01</div>
+                            <h3 class="font-extrabold text-sm text-slate-900 mb-1.5">Khử Đếm Trùng Doanh Thu (Zero Duplicate)</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Tự động phát hiện và loại bỏ các giao dịch bị nạp lặp nhiều lần qua cổng POS, Web hoặc Bán buôn RFQ. Bảo vệ tính toàn vẹn của doanh thu ghi nhận.
+                            </p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-rose-100 text-[10px] font-mono text-rose-500 font-bold">100% Chuẩn Hóa ID</div>
+                    </div>
+
+                    <!-- Mục đích 2 -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-amber-200 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-black text-sm mb-2.5">02</div>
+                            <h3 class="font-extrabold text-sm text-slate-900 mb-1.5">Bóc Tách Hủy &amp; Hoàn Nhập Giá Vốn (COGS)</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Khấu trừ doanh thu đơn hủy, bóc tách đơn hoàn trả và tự động <b>hoàn nhập giá vốn hàng bán</b> về kho kế toán, ngăn chặn triệt để việc thổi phồng lợi nhuận ảo.
+                            </p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-amber-100 text-[10px] font-mono text-amber-700 font-bold">Chuẩn Mực Kế Toán</div>
+                    </div>
+
+                    <!-- Mục đích 3 -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-emerald-200 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm mb-2.5">03</div>
+                            <h3 class="font-extrabold text-sm text-slate-900 mb-1.5">Kiểm Toán Đối Soát Chéo 3 Bên Tự Động</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Tự động đối chiếu chéo độc lập giữa: <b>Dữ liệu thô</b> &harr; <b>Dữ liệu làm sạch</b> &harr; <b>Sổ cái kế toán</b>. Bảo đảm số liệu khớp 100.0% không lệch 1 đồng.
+                            </p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-emerald-100 text-[10px] font-mono text-emerald-700 font-bold">Chênh Lệch: 0.00 đ</div>
+                    </div>
+
+                    <!-- Mục đích 4 -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-purple-200 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black text-sm mb-2.5">04</div>
+                            <h3 class="font-extrabold text-sm text-slate-900 mb-1.5">Đo Lường CSAT &amp; Can Thiệp Điểm Nóng</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Ứng dụng NLP phân tích cảm xúc khách hàng, phát hiện các chi nhánh có tỷ lệ đổi trả cao hoặc phản hồi tiêu cực để phân loại ưu tiên can thiệp P1 đến P4.
+                            </p>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-purple-100 text-[10px] font-mono text-purple-700 font-bold">AI Co-Pilot Decision</div>
+                    </div>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-bold flex items-center justify-between">
+                    <span><b>Tác động:</b> Chuyển đổi công việc đối soát thủ công từ 7 ngày xuống chỉ còn vài giây xử lý tự động với độ chính xác tuyệt đối.</span>
+                    <span class="font-mono text-rose-600">Zero Error Rate</span>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 3: KIẾN TRÚC ANTIGRAVITY & GEMINI API                    -->
+            <!-- ============================================================= -->
+            <div id="slide-3" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TRỌNG TÂM 2 • KIẾN TRÚC KỸ THUẬT &amp; NGUỒN CẤP API
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Sự Phối Hợp Giữa Google Antigravity &amp; Google Gemini API</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Phân định ranh giới rõ ràng giữa Bộ khung điều hành tác nhân (Harness) và Bộ não nhận thức (Cognitive Engine).</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+                    <!-- Column 1: Antigravity -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-rose-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-xs">AGY</span>
+                                <h3 class="font-extrabold text-sm text-slate-900">Google Antigravity</h3>
+                            </div>
+                            <p class="text-xs text-rose-600 font-bold mb-2">Agentic Workflow Orchestrator</p>
+                            <ul class="text-xs text-slate-600 space-y-1.5">
+                                <li>• Khung điều phối tác nhân của Google DeepMind.</li>
+                                <li>• Quản lý vòng đời Agent và phiên làm việc (Session).</li>
+                                <li>• Thực thi 4 AI Guardrails trong môi trường an toàn.</li>
+                                <li>• Tích hợp vòng lặp kiểm tra con người (Human-in-the-loop).</li>
+                                <li>• Điều khiển các công cụ xử lý file và sandbox.</li>
+                            </ul>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-rose-100 text-[10px] font-mono text-slate-400">Agent Runtime Harness</div>
+                    </div>
+
+                    <!-- Column 2: Gemini API -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-blue-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-blue-500 text-white flex items-center justify-center font-black text-xs">API</span>
+                                <h3 class="font-extrabold text-sm text-slate-900">Google Gemini API</h3>
+                            </div>
+                            <p class="text-xs text-blue-600 font-bold mb-2">Cognitive Reasoning Engine (LLM)</p>
+                            <ul class="text-xs text-slate-600 space-y-1.5">
+                                <li>• Mô hình ngôn ngữ lớn tiên tiến (Gemini 1.5 Pro / Flash).</li>
+                                <li>• Đọc hiểu ngữ cảnh kinh doanh và câu hỏi định hướng.</li>
+                                <li>• Xử lý ngôn ngữ tự nhiên (NLP) phân tích cảm xúc CSAT.</li>
+                                <li>• Nhận diện nguyên nhân gốc rễ đơn hủy &amp; khiếu nại.</li>
+                                <li>• Đề xuất kịch bản can thiệp thông minh theo mức P1-P4.</li>
+                            </ul>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-blue-100 text-[10px] font-mono text-slate-400">Deep Reasoning Core</div>
+                    </div>
+
+                    <!-- Column 3: How & Where to get API -->
+                    <div class="p-4 sm:p-5 rounded-2xl glass-card-subtle border-2 border-emerald-300 flex flex-col justify-between bg-emerald-50/20">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-black text-xs"><i class="fa-solid fa-key"></i></span>
+                                <h3 class="font-extrabold text-sm text-slate-900">Nguồn Cấp &amp; Cách Lấy API</h3>
+                            </div>
+                            <p class="text-xs text-emerald-700 font-bold mb-2">Google AI Studio (Chính Thức)</p>
+                            <div class="space-y-2 text-xs text-slate-700">
+                                <div class="p-2 rounded-xl bg-white border border-emerald-200">
+                                    <b>1. Cổng cấp khóa API:</b>
+                                    <p class="text-slate-500 font-mono text-[11px] text-blue-600 font-bold mt-0.5">https://aistudio.google.com/</p>
+                                </div>
+                                <div class="p-2 rounded-xl bg-white border border-emerald-200">
+                                    <b>2. Quy trình lấy 3 bước:</b>
+                                    <p class="text-slate-500 text-[11px] mt-0.5">Đăng nhập Google &rarr; Nhấn <b>Get API key</b> &rarr; Chọn <b>Create API key in new project</b>.</p>
+                                </div>
+                                <div class="p-2 rounded-xl bg-white border border-emerald-200">
+                                    <b>3. Chuỗi khóa mã hóa:</b>
+                                    <p class="text-slate-500 text-[11px] font-mono mt-0.5">Key bắt đầu bằng: <span class="text-rose-600 font-bold">AIzaSy...</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-t border-emerald-100 text-[10px] font-mono text-slate-400">Official Google Developer Portal</div>
+                    </div>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                    <span><b>Mô hình vận hành:</b> Google Antigravity điều phối &rarr; Python làm sạch số liệu chuẩn kế toán &rarr; Gemini API phân tích cảm xúc &amp; suy luận kịch bản.</span>
+                    <span class="font-mono text-[10px] text-slate-400">Zero Leakage Architecture</span>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 4: QUY TRÌNH CHUẨN HÓA — BƯỚC 1                         -->
+            <!-- ============================================================= -->
+            <div id="slide-4" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TRỌNG TÂM 3 (BƯỚC 1/4) • QUY TRÌNH VẬN HÀNH CHUẨN HÓA
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Bước 1: Tiếp Nhận &amp; Thẩm Định Dữ Liệu Đa Nguồn</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Thiết lập hồ sơ định hướng và bảo vệ cửa ngõ nạp tệp bằng cơ chế khóa an toàn Safe Gate.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+                    <!-- Khối 1: Thẩm định hồ sơ -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-rose-200 flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-black text-sm mb-3">
+                                <i class="fa-solid fa-building"></i>
+                            </div>
+                            <h3 class="font-black text-base text-slate-900 mb-1">1. Thẩm Định Hồ Sơ Doanh Nghiệp</h3>
+                            <p class="text-xs text-rose-600 font-bold mb-2.5">Business Profile Verification</p>
+                            <ul class="text-xs text-slate-600 space-y-2">
+                                <li>• Định danh loại hình doanh nghiệp bán lẻ và quy mô chuỗi chi nhánh.</li>
+                                <li>• Tiếp nhận tối đa <b>10 câu hỏi nghiệp vụ trọng tâm</b> của Ban Giám Đốc.</li>
+                                <li>• Cung cấp các mục tiêu định lượng: Chỉ tiêu doanh thu, biên lợi nhuận kỳ vọng và ngưỡng an toàn đơn đổi trả.</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-rose-100 text-[10px] font-mono text-rose-600 font-bold">Context-Aware Alignment</div>
+                    </div>
+
+                    <!-- Khối 2: Safe Gate -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-rose-400 bg-rose-50/20 shadow-md flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-sm mb-3">
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                            <h3 class="font-black text-base text-slate-900 mb-1">2. Cơ Chế Khóa Safe Gate</h3>
+                            <p class="text-xs text-rose-600 font-bold mb-2.5">Safe Gate Ingestion Security</p>
+                            <ul class="text-xs text-slate-700 space-y-2">
+                                <li>• Tự động <b>khóa khu vực nạp file</b> khi hệ thống mới khởi động.</li>
+                                <li>• Ngăn chặn tuyệt đối việc người dùng vô tình tải dữ liệu rác trước khi định hướng mục tiêu (Chống lỗi Garbage In - Garbage Out).</li>
+                                <li>• Chỉ kích hoạt mở khóa vùng kéo thả khi hồ sơ doanh nghiệp đã được xác nhận hợp lệ.</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-rose-200 text-[10px] font-mono text-rose-600 font-bold">Zero Garbage In</div>
+                    </div>
+
+                    <!-- Khối 3: Tiếp nhận đa định dạng -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-slate-300 flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-black text-sm mb-3">
+                                <i class="fa-solid fa-file-excel"></i>
+                            </div>
+                            <h3 class="font-black text-base text-slate-900 mb-1">3. Auto-Schema Mapping</h3>
+                            <p class="text-xs text-slate-600 font-bold mb-2.5">Tự Động Ánh Xạ Cấu Trúc</p>
+                            <ul class="text-xs text-slate-600 space-y-2">
+                                <li>• Tiếp nhận tệp đa định dạng: Excel (<code>.xlsx</code>) và CSV (<code>.csv</code>).</li>
+                                <li>• Tự động quét và chuẩn hóa các cột: Mã đơn (Transaction ID), Ngày giao dịch, Cửa hàng (Store ID), Doanh thu, Trạng thái đơn, Khách hàng.</li>
+                                <li>• Tương thích với tệp xuất ra từ mọi hệ thống POS / ERP bán lẻ.</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-slate-200 text-[10px] font-mono text-slate-500 font-bold">Universal POS Compatibility</div>
+                    </div>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 font-bold flex items-center justify-between">
+                    <span><b>Nguyên tắc Bước 1:</b> Không để bất kỳ dữ liệu sai lệch hay vô định hướng nào lọt vào quy trình tính toán kế toán.</span>
+                    <span class="font-mono text-rose-600">Controlled Intake Gate</span>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 5: QUY TRÌNH CHUẨN HÓA — BƯỚC 2                         -->
+            <!-- ============================================================= -->
+            <div id="slide-5" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TRỌNG TÂM 3 (BƯỚC 2/4) • QUY TRÌNH VẬN HÀNH CHUẨN HÓA
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Bước 2: Làm Sạch &amp; ETL Tự Động Với 4 AI Guardrails</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Bóc tách triệt để rủi ro kế toán tự động kết hợp vòng lặp kiểm tra xác nhận của chuyên viên (Human Verification).</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+                    <!-- Left: 4 AI Guardrails -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-rose-300 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-xs"><i class="fa-solid fa-shield-halved"></i></span>
+                                <h3 class="font-extrabold text-sm text-slate-900 uppercase">4 Bộ Lọc AI Guardrails Độc Quyền</h3>
+                            </div>
+
+                            <div class="space-y-2.5 text-xs text-slate-700">
+                                <div class="p-2.5 rounded-xl bg-white border border-rose-200">
+                                    <span class="font-black text-rose-600 font-mono text-[11px]">RULE-DEDUP &bull; Khử Đếm Trùng:</span>
+                                    <p class="text-slate-600 mt-0.5">Quét băm ID và thời gian, loại bỏ hoàn toàn các dòng giao dịch trùng lặp mã đơn và sản phẩm giữa các kênh.</p>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white border border-amber-200">
+                                    <span class="font-black text-amber-600 font-mono text-[11px]">RULE-CANC &bull; Bóc Tách Đơn Hủy:</span>
+                                    <p class="text-slate-600 mt-0.5">Cô lập các giao dịch trạng thái CANCELLED, khấu trừ khỏi doanh thu ghi nhận để xóa bỏ công nợ ảo.</p>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white border border-emerald-200">
+                                    <span class="font-black text-emerald-600 font-mono text-[11px]">RULE-RET &bull; Hoàn Nhập Giá Vốn (COGS):</span>
+                                    <p class="text-slate-600 mt-0.5">Khấu trừ doanh thu đơn RETURNED, đồng thời tự động hoàn nhập giá vốn hàng bán về kho theo nguyên tắc kế toán.</p>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-white border border-purple-200">
+                                    <span class="font-black text-purple-600 font-mono text-[11px]">RULE-SYNC &bull; Đồng Bộ Kỳ Kế Toán:</span>
+                                    <p class="text-slate-600 mt-0.5">Kiểm tra tính toàn vẹn của kỳ báo cáo, gắn cờ các giao dịch lệch kỳ/lệch niên độ để tách riêng.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Human Verification Loop -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-emerald-400 bg-emerald-50/20 shadow-md flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-xs"><i class="fa-solid fa-user-check"></i></span>
+                                <h3 class="font-extrabold text-sm text-slate-900 uppercase">Human-in-the-loop (Xác Thực Chuyên Viên)</h3>
+                            </div>
+                            <p class="text-xs text-emerald-800 font-bold mb-3">Con người giữ quyền kiểm soát tối cao trước khi dữ liệu được chuyển bước</p>
+
+                            <div class="space-y-3 text-xs text-slate-700">
+                                <div class="p-3 rounded-xl bg-white border border-emerald-200">
+                                    <b class="text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-table-list text-emerald-600"></i> Bảng Xem Trước Đa Chế Độ:</b>
+                                    <p class="text-slate-500 mt-1">Chuyên viên dễ dàng chuyển đổi xem: Dữ liệu sạch, Dữ liệu thô ban đầu, hoặc Danh sách các dòng bị 4 bộ lọc loại trừ.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-white border border-emerald-200">
+                                    <b class="text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square text-emerald-600"></i> Biên Bản Ghi Chú Đối Soát:</b>
+                                    <p class="text-slate-500 mt-1">Ô nhập ghi chú đối soát lưu trữ trực tiếp vào hệ thống kiểm toán, phục vụ thanh tra và giải trình số liệu.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-white border border-emerald-200">
+                                    <b class="text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-hand-holding-hand text-emerald-600"></i> Phê Duyệt &amp; Nút Xóa Dữ Liệu Sạch:</b>
+                                    <p class="text-slate-500 mt-1">Nút <code>[Con Người Xác Nhận: Dữ Liệu OK]</code> để chuyển bước và nút đỏ <code>[Xóa Dữ Liệu]</code> để làm sạch hệ thống bất kỳ lúc nào.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-slate-500 italic text-center">
+                    Cơ chế bảo vệ kép: Trí tuệ nhân tạo (AI Guardrails) lọc tự động + Chuyên viên kế toán (Human Verification) xác nhận hợp lệ.
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 6: QUY TRÌNH CHUẨN HÓA — BƯỚC 3                         -->
+            <!-- ============================================================= -->
+            <div id="slide-6" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TRỌNG TÂM 3 (BƯỚC 3/4) • QUY TRÌNH VẬN HÀNH CHUẨN HÓA
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Bước 3: Báo Cáo Quản Trị Đa Chiều &amp; Đo Lường CSAT Thực Tế</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Tổng hợp 4 chỉ số tài chính vàng và ứng dụng NLP phân tích cảm xúc khách hàng thời gian thực.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-auto">
+                    <!-- Left: Financial & Operational Analytics -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-rose-300 flex flex-col justify-between shadow-xs">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="w-8 h-8 rounded-xl bg-rose-500 text-white flex items-center justify-center font-black text-xs"><i class="fa-solid fa-chart-pie"></i></span>
+                                <h3 class="font-extrabold text-sm text-slate-900 uppercase">Báo Cáo Tài Chính &amp; Hiệu Suất Quản Trị</h3>
+                            </div>
+                            <p class="text-xs text-rose-600 font-bold mb-3">Hệ thống công thức kế toán quản trị chuẩn mực</p>
+
+                            <div class="space-y-3 text-xs text-slate-700">
+                                <div class="p-3 rounded-xl bg-white border border-rose-100">
+                                    <b class="text-slate-900 font-mono">1. Doanh Thu Thuần (Net Revenue):</b>
+                                    <p class="text-slate-600 font-mono text-[11px] mt-0.5">Net Revenue = Doanh Thu Thô - Đơn Hủy - Đơn Trả</p>
+                                    <p class="text-slate-400 text-[10px] mt-0.5">Phản ánh chính xác dòng tiền thu về của doanh nghiệp.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-white border border-rose-100">
+                                    <b class="text-slate-900 font-mono">2. Lợi Nhuận Gộp &amp; Biên LN Gộp:</b>
+                                    <p class="text-slate-600 font-mono text-[11px] mt-0.5">Gross Profit = Net Revenue - (COGS Thô - COGS Hoàn Nhập)</p>
+                                    <p class="text-slate-400 text-[10px] mt-0.5">Bảo toàn tỷ suất biên lợi nhuận chuẩn xác, không bị bóp méo.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-white border border-rose-100">
+                                    <b class="text-slate-900 font-mono">3. Phân Tích Đa Chiều Theo Cửa Hàng &amp; Ngành Hàng:</b>
+                                    <p class="text-slate-500 text-[11px] mt-0.5">So sánh hiệu quả từng điểm bán, nhận diện mã sản phẩm có tỷ lệ đổi trả bất thường.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: CSAT & Real Sentiment NLP -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-blue-400 bg-blue-50/20 shadow-md flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xs"><i class="fa-solid fa-comments"></i></span>
+                                <h3 class="font-extrabold text-sm text-slate-900 uppercase">Đo Lường CSAT Thực Tế Bằng NLP (Gemini API)</h3>
+                            </div>
+                            <p class="text-xs text-blue-700 font-bold mb-3">Lắng nghe tiếng nói khách hàng qua trí tuệ nhân tạo nhận thức</p>
+
+                            <div class="space-y-3 text-xs text-slate-700">
+                                <div class="p-3 rounded-xl bg-white border border-blue-200">
+                                    <b class="text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-star text-amber-500"></i> Đánh Giá Sao Khách Hàng (1★ - 5★):</b>
+                                    <p class="text-slate-500 mt-1">Đo lường chỉ số hài lòng khách hàng thực tế (CSAT) theo từng chi nhánh và toàn hệ thống.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-white border border-blue-200">
+                                    <b class="text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-brain text-blue-500"></i> Phân Loại Cảm Xúc NLP Đa Tầng:</b>
+                                    <p class="text-slate-500 mt-1">Gemini API đọc hiểu từng phản hồi văn bản, phân loại sắc thái: <b>Tích cực (Positive)</b>, <b>Trung tính (Neutral)</b>, <b>Tiêu cực (Negative)</b>.</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-white border border-blue-200">
+                                    <b class="text-slate-900 flex items-center gap-1.5"><i class="fa-solid fa-tags text-rose-500"></i> Tự Động Gán Nhãn Chủ Đề Khiếu Nại:</b>
+                                    <p class="text-slate-500 mt-1">Bóc tách nguyên nhân khiếu nại: Chất lượng sản phẩm, Thái độ phục vụ, Thời gian giao hàng, Giá cả/Khuyến mãi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-bold flex items-center justify-between">
+                    <span>Kết hợp sức mạnh phân tích số liệu tài chính định lượng với phân tích cảm xúc định tính từ khách hàng thực tế.</span>
+                    <span class="font-mono text-blue-700">Holistic Retail Intelligence</span>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 7: QUY TRÌNH CHUẨN HÓA — BƯỚC 4                         -->
+            <!-- ============================================================= -->
+            <div id="slide-7" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TRỌNG TÂM 3 (BƯỚC 4/4) • QUY TRÌNH VẬN HÀNH CHUẨN HÓA
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Bước 4: Kiểm Toán Đối Soát Chéo 3 Bên &amp; Đề Xuất Điều Hành</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Khớp nối kế toán chính xác tuyệt đối và tự động phân bổ ma trận ưu tiên can thiệp P1 đến P4.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+                    <!-- Khối 1: Đối soát 3 bên -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-emerald-300 flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm mb-3">
+                                <i class="fa-solid fa-check-double"></i>
+                            </div>
+                            <h3 class="font-black text-base text-slate-900 mb-1">1. Kiểm Toán Đối Soát 3 Bên</h3>
+                            <p class="text-xs text-emerald-700 font-bold mb-2.5">3-Way Cross Check Audit</p>
+                            <ul class="text-xs text-slate-600 space-y-2">
+                                <li>• <b>Bên 1:</b> Tệp dữ liệu thô ban đầu (Raw Data Ingestion).</li>
+                                <li>• <b>Bên 2:</b> Dữ liệu sạch sau 4 AI Guardrails (Cleaned Sheet).</li>
+                                <li>• <b>Bên 3:</b> Bút toán đối ứng Sổ cái kế toán (General Ledger).</li>
+                                <li>• <b>Tiêu chuẩn:</b> Tỷ lệ chênh lệch bằng đúng <b>0.00 đ</b> (Khớp 100.0%).</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-emerald-100 text-[10px] font-mono text-emerald-700 font-bold">100.0% Matched Audit</div>
+                    </div>
+
+                    <!-- Khối 2: Ma trận P1-P4 -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-purple-400 bg-purple-50/20 shadow-md flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-sm mb-3">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h3 class="font-black text-base text-slate-900 mb-1">2. Ma Trận Ưu Tiên P1 - P4</h3>
+                            <p class="text-xs text-purple-700 font-bold mb-2.5">Action Priority Matrix</p>
+                            <div class="space-y-1.5 text-xs text-slate-700">
+                                <div class="p-1.5 rounded-lg bg-white border border-rose-200">
+                                    <b class="text-rose-600">P1 (Khẩn Cấp):</b> Đổi trả &gt; 10% hoặc CSAT &lt; 3.0★ &rarr; Kích hoạt kịch bản cấp cứu &amp; ngân sách hỗ trợ.
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-amber-200">
+                                    <b class="text-amber-600">P2 (Cảnh Báo):</b> Hụt doanh số &rarr; Tăng cường khuyến mãi.
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-blue-200">
+                                    <b class="text-blue-600">P3 (Tiềm Năng):</b> Duy trì &amp; tối ưu chi phí vận hành.
+                                </div>
+                                <div class="p-1.5 rounded-lg bg-white border border-emerald-200">
+                                    <b class="text-emerald-600">P4 (Dẫn Đầu):</b> Khen thưởng &amp; nhân rộng mô hình tốt.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-purple-200 text-[10px] font-mono text-purple-700 font-bold">Data-Driven Intervention</div>
+                    </div>
+
+                    <!-- Khối 3: E-Signature -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-slate-300 flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-black text-sm mb-3">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <h3 class="font-black text-base text-slate-900 mb-1">3. Phê Duyệt Điện Tử 1-Chạm</h3>
+                            <p class="text-xs text-slate-600 font-bold mb-2.5">Executive Sign-Off &amp; Export</p>
+                            <ul class="text-xs text-slate-600 space-y-2">
+                                <li>• Ban Giám Đốc ký duyệt điện tử 1-chạm (One-Click Sign-Off).</li>
+                                <li>• Khóa dữ liệu điều hành chính thức, chống sửa đổi sau kiểm toán.</li>
+                                <li>• Cấp mã định danh xác thực báo cáo (Validation Token).</li>
+                                <li>• Tự động xuất báo cáo PDF và Slide trình chiếu hoàn chỉnh.</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 pt-2.5 border-t border-slate-200 text-[10px] font-mono text-slate-500 font-bold">Tamper-Proof Governance</div>
+                    </div>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-xs text-purple-900 font-bold flex items-center justify-between">
+                    <span>Quy trình 4 bước khép kín từ dữ liệu thô đến quyết định điều hành có tính thực thi tức thì.</span>
+                    <span class="font-mono text-purple-700">Closed-Loop Retail OS</span>
+                </div>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- SLIDE 8: TỔNG KẾT ĐỀ TÀI & HỎI ĐÁP (Q&A)                       -->
+            <!-- ============================================================= -->
+            <div id="slide-8" class="slide-transition slide-hidden flex-col justify-between h-full space-y-4">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-extrabold text-[11px] uppercase tracking-wider">
+                        TỔNG KẾT ĐỀ TÀI AI301 • GIÁ TRỊ THỰC TIỄN &amp; KẾT LUẬN
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5">Giá Trị Thực Tiễn &amp; Tính Khả Thi Triển Khai Doanh Nghiệp</h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Hệ thống sẵn sàng tiếp nhận dữ liệu thực tế tại Bước 1 và mở rộng quy mô linh hoạt cho chuỗi bán lẻ.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+                    <!-- Trụ cột 1 -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-rose-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-black text-rose-600 uppercase">GIÁ TRỊ 01</span>
+                            <h4 class="font-extrabold text-sm text-slate-900 mt-1 mb-2">Tiết Kiệm 95% Thời Gian Đối Soát</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Thay thế hoàn toàn quy trình đối soát thủ công kéo dài nhiều ngày cuối tháng bằng khả năng xử lý tự động trong vài giây, giải phóng tối đa năng suất của đội ngũ kế toán.
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-rose-500 mt-3 font-mono">Tự Động Hóa 100%</span>
+                    </div>
+
+                    <!-- Trụ cột 2 -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-emerald-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-black text-emerald-600 uppercase">GIÁ TRỊ 02</span>
+                            <h4 class="font-extrabold text-sm text-slate-900 mt-1 mb-2">Bảo Vệ Lợi Nhuận Thực Tế</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Khử 100% rủi ro đếm trùng doanh thu và tự động hoàn nhập giá vốn hàng bán (COGS) chuẩn mực, giúp Ban Giám Đốc ra quyết định dựa trên số liệu thực tế chứ không phải số liệu ảo.
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-emerald-600 mt-3 font-mono">Chuẩn Mực Kiểm Toán</span>
+                    </div>
+
+                    <!-- Trụ cột 3 -->
+                    <div class="p-5 rounded-2xl glass-card-subtle border-2 border-blue-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-black text-blue-600 uppercase">GIÁ TRỊ 03</span>
+                            <h4 class="font-extrabold text-sm text-slate-900 mt-1 mb-2">Cơ Chế Cắm Là Chạy (Plug &amp; Play)</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Doanh nghiệp chỉ cần tải tệp Excel bán hàng vào Bước 1; hệ thống tự động nhận diện cấu trúc và vận hành 4 bước khép kín mà không cần thay đổi phần mềm POS sẵn có.
+                            </p>
+                        </div>
+                        <span class="text-[10px] font-bold text-blue-600 mt-3 font-mono">Universal Compatibility</span>
+                    </div>
+                </div>
+
+                <!-- Callout & Q&A Box -->
+                <div class="p-4 rounded-2xl bg-gradient-to-r from-rose-50 via-white to-pink-50 border-2 border-rose-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-pink-500 text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
+                            <i class="fa-solid fa-comments-question-check"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-xs sm:text-sm text-slate-900 uppercase">HỆ THỐNG ĐÃ SẴN SÀNG TIẾP NHẬN DỮ LIỆU THỰC TẾ &bull; PHIÊN HỎI &amp; ĐÁP (Q&amp;A)</h4>
+                            <p class="text-[11px] text-slate-600 mt-0.5">Em xin chân thành cảm ơn Quý Thầy/Cô và Hội đồng giám khảo đã lắng nghe bài thuyết trình dự án AI301!</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 font-mono text-[11px]">
+                        <span class="px-3 py-1 rounded-lg bg-rose-600 text-white font-bold tracking-wider">AI301-DEFENSE-READY</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- BOTTOM CONTROL BAR -->
+    <footer id="controlBar" class="w-full max-w-7xl flex items-center justify-between px-4 py-2.5 rounded-2xl glass-card mt-2 z-30">
+        <div class="flex items-center gap-2">
+            <button onclick="prevSlide()" class="px-4 py-2 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition cursor-pointer shadow-2xs hover:scale-105">
+                <i class="fa-solid fa-chevron-left text-[11px]"></i>
+                <span>Trước</span>
+            </button>
+            <button onclick="nextSlide()" class="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black flex items-center gap-1.5 transition cursor-pointer shadow-md shadow-rose-500/25 hover:scale-105">
+                <span>Tiếp Theo</span>
+                <i class="fa-solid fa-chevron-right text-[11px]"></i>
+            </button>
+        </div>
+
+        <!-- Keyboard Hints (Center) -->
+        <div class="hidden lg:flex items-center gap-3 text-[11px] text-slate-500 font-medium">
+            <span>Phím tắt:</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 font-mono">&larr; / &rarr;</span><span>Chuyển slide</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 font-mono">F</span><span>Toàn màn hình</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 font-mono">N</span><span>Lời thoại</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 font-mono">O</span><span>Tất cả slide</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-200 font-mono">Ctrl + P</span><span>In / Lưu PDF</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-rose-50 border border-rose-200 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="In hoặc Xuất thành PDF (Ctrl + P)">
+                <i class="fa-solid fa-print text-rose-500"></i>
+                <span>In / Lưu PDF</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- SPEAKER NOTES DRAWER (SLIDE-OVER PANEL) -->
+    <div id="speakerNotesPanel" class="fixed right-0 top-0 bottom-0 w-full sm:w-[440px] bg-white/95 backdrop-blur-2xl border-l border-rose-200 p-6 z-50 transform translate-x-full transition-transform duration-300 shadow-2xl flex flex-col justify-between">
+        <div>
+            <div class="flex items-center justify-between pb-4 border-b border-rose-100 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-black">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                    </span>
+                    <div>
+                        <h3 class="font-extrabold text-sm text-slate-900">Lời Thuyết Trình (Speaker Notes)</h3>
+                        <p class="text-[11px] text-slate-500 font-mono" id="notesSlideNumberLabel">Slide 1 / 8</p>
+                    </div>
+                </div>
+                <button onclick="toggleSpeakerNotes()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-600 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200 mb-4 text-xs font-bold text-rose-800 leading-snug">
+                <i class="fa-solid fa-lightbulb text-amber-500 mr-1.5"></i>
+                <span>Gợi ý: Đọc lời thoại này một cách tự tin, chậm rãi khi thuyết trình trước Hội đồng chấm thi môn AI301.</span>
+            </div>
+
+            <!-- Dynamic Notes Content -->
+            <div id="speakerNotesContent" class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3 font-normal max-h-[calc(100vh-250px)] overflow-y-auto custom-scroll pr-2">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <div class="pt-4 border-t border-rose-100 flex items-center justify-between text-xs text-slate-400">
+            <span>Nhấn <kbd class="px-1.5 py-0.5 rounded bg-slate-100 border text-[10px] font-mono">N</kbd> để đóng/mở nhanh</span>
+            <button onclick="copySpeakerNotes()" class="text-rose-600 font-bold hover:underline flex items-center gap-1 cursor-pointer">
+                <i class="fa-regular fa-copy"></i> Sao chép lời thoại
+            </button>
+        </div>
+    </div>
+
+    <!-- OVERVIEW MODAL (GRID OF ALL 8 SLIDES) -->
+    <div id="overviewModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+        <div class="bg-white/95 rounded-3xl p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto custom-scroll shadow-2xl border border-rose-200 flex flex-col justify-between">
+            <div class="flex items-center justify-between pb-4 border-b border-rose-100 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-grid-2 text-rose-500 text-lg"></i>
+                    <h3 class="font-extrabold text-base text-slate-900">Danh Sách Toàn Bộ 8 Slide Thuyết Trình</h3>
+                </div>
+                <button onclick="toggleOverviewModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-rose-100 text-slate-600 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-2" id="overviewGrid">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <p class="text-center text-xs text-slate-400 mt-4">Nhấp vào slide bất kỳ để chuyển nhanh đến slide đó (hoặc nhấn phím Esc để đóng).</p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT SLIDE CONTROLLER (100% STANDALONE OFFLINE) -->
+    <script>
+        const TOTAL_SLIDES = 8;
+        let currentSlide = 1;
+        let isNotesOpen = false;
+
+        const slideTitles = [
+            "Slide 1: Bìa Báo Cáo Chiến Lược AI301",
+            "Slide 2: Mục Đích Sử Dụng AI Agent",
+            "Slide 3: Kiến Trúc Google Antigravity & Gemini API",
+            "Slide 4: Bước 1 - Tiếp Nhận & Safe Gate",
+            "Slide 5: Bước 2 - Làm Sạch ETL & 4 AI Guardrails",
+            "Slide 6: Bước 3 - Báo Cáo Quản Trị & NLP CSAT",
+            "Slide 7: Bước 4 - Đối Soát 3 Bên & Ma Trận P1-P4",
+            "Slide 8: Tổng Kết Đề Tài & Phiên Hỏi Đáp (Q&A)"
+        ];
+
+        const speakerNotesList = [
+            `"Kính thưa Thầy/Cô và Hội đồng giám khảo, em xin phép đại diện nhóm trình bày đề tài cuối môn AI301: <b>'Tối Ưu Hóa Quản Trị Vận Hành & Đối Soát Doanh Thu Bán Lẻ Bằng Trí Tuệ Nhân Tạo AI Agent'</b> thông qua hệ thống <b>Bảo Ngọc AI — Retail Agent OS</b>.<br><br>Đề tài được thiết kế nhằm giải quyết triệt để các bài toán vận hành phức tạp của chuỗi bán lẻ đa chi nhánh: từ làm sạch dữ liệu tự động, khử đếm trùng, bóc tách đơn hủy & đơn hoàn trả, hoàn nhập giá vốn hàng bán, đến đo lường cảm xúc khách hàng CSAT và tự động kiểm toán chéo số liệu 100%."`,
+
+            `"Trong quản trị bán lẻ đa kênh, điểm đau chí tử của phòng Kế toán và Ban Giám Đốc là <b>doanh thu bị thổi phồng ảo</b> do lỗi đếm trùng giao dịch giữa kênh POS và Web, cùng với các đơn hủy và hoàn trả không được bóc tách kịp thời dẫn đến sai lệch thuế, công nợ và biên lợi nhuận.<br><br>AI Agent này ra đời với 4 mục đích cốt lõi:<br>1. <b>Khử đếm trùng 100%:</b> Loại trừ hoàn toàn giao dịch trùng mã đơn và dòng sản phẩm.<br>2. <b>Bóc tách đơn hủy & trả hàng:</b> Khấu trừ doanh thu thuần và tự động hoàn nhập giá vốn hàng bán (COGS) về kho theo đúng chuẩn kế toán.<br>3. <b>Kiểm toán đối soát chéo 3 bên tự động:</b> So khớp Dữ liệu thô - Dữ liệu sạch - Sổ cái kế toán khớp 100% không lệch 1 đồng.<br>4. <b>Giám sát CSAT & Can thiệp:</b> Đo lường sự hài lòng khách hàng thực tế và đề xuất kịch bản can thiệp P1-P4 kịp thời."`,
+
+            `"Về kiến trúc công nghệ, hệ thống là sự kết hợp chặt chẽ giữa <b>Google Antigravity</b> và <b>Google Gemini API</b>:<br><br>• <b>Google Antigravity:</b> Đóng vai trò Bộ khung điều phối tác nhân (Agent Harness) của Google DeepMind, chịu trách nhiệm quản lý vòng đời Agent, thực thi tuần tự 4 bước vận hành, kiểm soát 4 AI Guardrails trong môi trường sandbox an toàn và hỗ trợ vòng lặp xác nhận của con người.<br>• <b>Google Gemini API:</b> Đóng vai trò Bộ não nhận thức ngôn ngữ lớn (Cognitive LLM), phụ trách thẩm định bối cảnh hồ sơ doanh nghiệp, ứng dụng xử lý ngôn ngữ tự nhiên NLP để đọc hiểu phản hồi CSAT của khách hàng và suy luận logic kịch bản can thiệp.<br>• <b>Nơi lấy Gemini API:</b> Chúng em lấy API key trực tiếp từ cổng nhà phát triển chính thức <b>Google AI Studio</b> tại địa chỉ <code class='text-blue-600 font-bold'>https://aistudio.google.com/</code> và cấu hình vào hệ thống."`,
+
+            `"Đi vào quy trình vận hành 4 bước chuẩn hóa, <b>Bước 1: Tiếp Nhận & Thẩm Định Dữ Liệu Đa Nguồn</b> thiết lập nền tảng kiểm soát chặt chẽ đầu vào:<br><br>• Hệ thống tiếp nhận hồ sơ doanh nghiệp gồm mô hình kinh doanh, số lượng chi nhánh và tối đa 10 câu hỏi định hướng nghiệp vụ để AI hiểu đúng mục tiêu phân tích.<br>• Đặc biệt, hệ thống triển khai <b>cơ chế khóa Safe Gate</b>: Toàn bộ khu vực tải file sẽ tự động bị khóa cho đến khi hồ sơ doanh nghiệp được xác nhận hợp lệ, nhằm ngăn ngừa triệt để nguy cơ xử lý dữ liệu vô định hướng (chống rác đầu vào).<br>• Cơ chế Auto-Schema Mapping tự động nhận diện và ánh xạ các trường dữ liệu từ tệp Excel và CSV của mọi phần mềm bán hàng POS hiện hữu."`,
+
+            `"Sau khi dữ liệu đầu vào được mở khóa, <b>Bước 2: Làm Sạch & ETL Tự Động Với 4 AI Guardrails</b> tiến hành bóc tách toàn diện các rủi ro kế toán:<br><br>• <b>RULE-DEDUP:</b> Khử sạch 100% các dòng giao dịch bị đếm trùng giữa kênh POS và Online.<br>• <b>RULE-CANC:</b> Cô lập các đơn hủy, loại bỏ khỏi doanh thu ghi nhận.<br>• <b>RULE-RET:</b> Khấu trừ doanh thu đơn trả, đồng thời <b>tự động hoàn nhập giá vốn hàng bán (COGS)</b> về kho theo đúng nguyên tắc kế toán tài chính.<br>• <b>RULE-SYNC:</b> Kiểm tra tính toàn vẹn của kỳ kế toán, phát hiện các giao dịch lệch kỳ.<br>• Đồng thời, vòng lặp <b>Human-in-the-loop</b> cho phép chuyên viên kế toán kiểm tra bảng dòng loại trừ, ghi biên bản đối soát và xác nhận bằng nút 'Con Người Xác Nhận: Dữ Liệu OK' hoặc bấm 'Xóa Dữ Liệu' để làm sạch lại."`,
+
+            `"Chuyển sang <b>Bước 3: Báo Cáo Quản Trị Đa Chiều & Đo Lường CSAT Thực Tế</b>, hệ thống kết hợp giữa phân tích số liệu tài chính định lượng và phân tích cảm xúc định tính:<br><br>• Hệ thống tự động tính toán Doanh thu thuần, Lợi nhuận gộp và Biên lợi nhuận gộp chuẩn xác sau khi đã bóc tách đơn hủy và hoàn nhập COGS.<br>• Đồng thời, mô-đun NLP kết nối Google Gemini API sẽ tiếp nhận các phản hồi thực tế từ khách hàng, tính toán điểm sao CSAT từ 1 đến 5 sao, phân loại sắc thái cảm xúc Tích cực - Trung tính - Tiêu cực, và tự động gán nhãn các nguyên nhân khiếu nại (Chất lượng sản phẩm, Thái độ phục vụ, Giao hàng trễ, Giá cả) để cảnh báo tức thì tới Ban Giám Đốc."`,
+
+            `"Tại <b>Bước 4: Kiểm Toán Đối Soát Chéo 3 Bên & Đề Xuất Điều Hành</b>, hệ thống hoàn tất quy trình khép kín:<br><br>• Cơ chế <b>3-Way Cross Check Audit</b> thực hiện đối chiếu chéo độc lập giữa: Tổng phát sinh tệp thô ban đầu &harr; Dữ liệu sau khi qua 4 AI Guardrails &harr; Bút toán trên Sổ cái kế toán. Tiêu chuẩn bắt buộc là tỷ lệ chênh lệch phải bằng đúng <b>0.00 đ</b> (khớp 100.0%).<br>• <b>Ma trận ưu tiên can thiệp P1-P4:</b> Tự động phân loại chi nhánh có tỷ lệ đổi trả cao hoặc CSAT thấp vào nhóm P1 Khẩn Cấp để kích hoạt kịch bản hỗ trợ, phân nhóm P2 Cảnh báo doanh số, P3 Tiềm năng và P4 Dẫn đầu.<br>• Ban Giám Đốc tiến hành <b>ký duyệt điện tử 1-chạm (Executive Sign-Off)</b> để khóa số liệu báo cáo chính thức và xuất bản tài liệu."`,
+
+            `"Để khép lại bài báo cáo, dự án <b>Bảo Ngọc AI — Retail Agent OS</b> mang lại 3 giá trị thực tiễn cốt lõi cho doanh nghiệp:<br><br>1. <b>Tiết kiệm 95% thời gian:</b> Tự động hóa toàn bộ công tác tổng hợp và đối soát doanh thu cuối tháng.<br>2. <b>Bảo vệ lợi nhuận thật:</b> Loại trừ hoàn toàn rủi ro đếm trùng và sai lệch giá vốn hàng bán.<br>3. <b>Tính sẵn sàng cao (Plug & Play):</b> Hệ thống ở trạng thái sạch, sẵn sàng tiếp nhận tệp dữ liệu thực tế của kỳ thi tại Bước 1 để thực thi toàn bộ quy trình mà không cần cấu hình phức tạp.<br><br>Em xin chân thành cảm ơn Quý Thầy/Cô và Hội đồng giám khảo đã theo dõi, và em rất mong nhận được những câu hỏi và đóng góp quý báu!"`
+        ];
+
+        function showSlide(n) {
+            if (n < 1) n = 1;
+            if (n > TOTAL_SLIDES) n = TOTAL_SLIDES;
+            currentSlide = n;
+
+            for (let i = 1; i <= TOTAL_SLIDES; i++) {
+                const el = document.getElementById(`slide-${i}`);
+                if (el) {
+                    if (i === n) {
+                        el.classList.remove('slide-hidden');
+                        el.classList.add('slide-active');
+                    } else {
+                        el.classList.add('slide-hidden');
+                        el.classList.remove('slide-active');
+                    }
+                }
+            }
+
+            // Update Labels & Progress
+            document.getElementById('currentSlideLabel').innerText = n;
+            document.getElementById('progressBar').style.width = `${(n / TOTAL_SLIDES) * 100}%`;
+            document.getElementById('notesSlideNumberLabel').innerText = `Slide ${n} / ${TOTAL_SLIDES}`;
+            document.getElementById('speakerNotesContent').innerHTML = speakerNotesList[n - 1] || '';
+
+            // Update Overview Active Border
+            renderOverviewGrid();
+        }
+
+        function nextSlide() {
+            if (currentSlide < TOTAL_SLIDES) showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) showSlide(currentSlide - 1);
+        }
+
+        function toggleSpeakerNotes() {
+            const panel = document.getElementById('speakerNotesPanel');
+            isNotesOpen = !isNotesOpen;
+            if (isNotesOpen) {
+                panel.classList.remove('translate-x-full');
+            } else {
+                panel.classList.add('translate-x-full');
+            }
+        }
+
+        function toggleOverviewModal() {
+            const modal = document.getElementById('overviewModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function renderOverviewGrid() {
+            const grid = document.getElementById('overviewGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            for (let i = 1; i <= TOTAL_SLIDES; i++) {
+                const btn = document.createElement('button');
+                btn.onclick = () => { showSlide(i); toggleOverviewModal(); };
+                btn.className = `p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between h-24 ${i === currentSlide ? 'border-rose-500 bg-rose-50 shadow-md ring-2 ring-rose-400' : 'border-slate-200 bg-white hover:border-rose-300'}`;
+                btn.innerHTML = `
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded-full w-max ${i === currentSlide ? 'bg-rose-500 text-white' : 'bg-slate-100 text-slate-600'}">Slide ${i}</span>
+                    <p class="text-[11px] font-extrabold text-slate-800 line-clamp-2 mt-1 leading-snug">${slideTitles[i - 1].replace(/Slide \d+: /, '')}</p>
+                `;
+                grid.appendChild(btn);
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => alert(`Lỗi: ${err.message}`));
+                document.getElementById('fullscreenIcon').className = 'fa-solid fa-compress text-xs text-rose-500';
+            } else {
+                document.exitFullscreen();
+                document.getElementById('fullscreenIcon').className = 'fa-solid fa-expand text-xs text-rose-500';
+            }
+        }
+
+        function copySpeakerNotes() {
+            const text = document.getElementById('speakerNotesContent').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép lời thuyết trình của Slide ' + currentSlide + ' vào clipboard!');
+            });
+        }
+
+        // KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'n' || e.key === 'N' || e.key === 's' || e.key === 'S') {
+                toggleSpeakerNotes();
+            } else if (e.key === 'o' || e.key === 'O') {
+                toggleOverviewModal();
+            } else if (e.key === 'Escape') {
+                const modal = document.getElementById('overviewModal');
+                if (!modal.classList.contains('hidden')) toggleOverviewModal();
+                if (isNotesOpen) toggleSpeakerNotes();
+            }
+        });
+
+        // Initialize first slide & overview
+        showSlide(1);
+    </script>
+</body>
+</html>

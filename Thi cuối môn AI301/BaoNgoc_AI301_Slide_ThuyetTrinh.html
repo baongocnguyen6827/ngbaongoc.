@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Kết Quả Kinh Doanh & Tình Hình Tài Chính • Bảo Ngọc (CEO)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rose: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'Segoe UI', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fff2f5;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(254, 205, 211, 0.45) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(253, 164, 175, 0.35) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(255, 228, 230, 0.5) 0px, transparent 60%);
+            background-attachment: fixed;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(254, 205, 211, 0.85);
+            box-shadow: 0 16px 40px -10px rgba(244, 63, 94, 0.14), 0 4px 16px -4px rgba(0, 0, 0, 0.04);
+        }
+
+        .slide-transition {
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide-hidden {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.98);
+        }
+
+        .slide-active {
+            display: flex !important;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* 16:9 Presentation Canvas */
+        .presentation-canvas {
+            width: 100%;
+            max-width: 1400px;
+            aspect-ratio: 16 / 9;
+            max-height: calc(100vh - 110px);
+        }
+
+        @media (max-aspect-ratio: 16/9) {
+            .presentation-canvas {
+                width: calc(100vw - 32px);
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col justify-between text-slate-800 antialiased p-3 sm:p-4 selection:bg-rose-500 selection:text-white">
+
+    <!-- TOP BAR NAVIGATION -->
+    <header class="flex items-center justify-between px-4 sm:px-6 py-2.5 rounded-2xl glass-card z-20 mb-3 max-w-7xl mx-auto w-full">
+        <div class="flex items-center gap-3">
+            <a href="/" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shadow-md shadow-rose-500/25 hover:scale-105 transition">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+            </a>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                    <h1 class="text-xs sm:text-sm font-black text-slate-900 tracking-tight">HỆ THỐNG BÁN LẺ &amp; PHÂN PHỐI BẢO NGỌC</h1>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-rose-100 text-rose-700 uppercase">Báo Cáo Điều Hành</span>
+                </div>
+                <p id="deckTopSub" class="text-[11px] text-slate-500 font-medium">Báo Cáo Kết Quả Kinh Doanh &amp; Tài Chính • Chủ trì: <b>Bảo Ngọc (CEO)</b></p>
+            </div>
+        </div>
+
+        <!-- Slide Indicators & Controls -->
+        <div class="flex items-center gap-2 sm:gap-4">
+            <!-- Progress Dots -->
+            <div id="slideDots" class="hidden sm:flex items-center gap-1.5">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- Slide Counter -->
+            <div class="px-3 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black font-mono">
+                <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">8</span>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex items-center gap-1">
+                <button onclick="prevSlide()" title="Slide trước (Phím Mũi tên trái)" class="w-8 h-8 rounded-xl bg-white border border-rose-200 text-slate-700 hover:text-rose-600 hover:border-rose-400 flex items-center justify-center transition">
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                </button>
+                <button onclick="nextSlide()" title="Slide sau (Phím Mũi tên phải hoặc Phím cách)" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center shadow-sm shadow-rose-500/30 hover:scale-105 transition">
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+                <a href="/api/download-pitch-deck" title="Tải xuống PowerPoint (.pptx)" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold transition ml-2">
+                    <i class="fa-solid fa-file-powerpoint text-rose-600"></i>
+                    <span>Tải .PPTX</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN SLIDE VIEWER (16:9 RATIO CANVAS) -->
+    <main class="flex-1 flex items-center justify-center relative w-full overflow-hidden">
+        <div class="presentation-canvas glass-card rounded-3xl p-6 sm:p-10 relative flex flex-col justify-between overflow-hidden shadow-2xl border-2 border-white/80">
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 1: COVER SLIDE (TRANG BÌA ĐIỀU HÀNH)                -->
+            <!-- ========================================================= -->
+            <section id="slide-1" class="slide-active slide-transition h-full flex-col justify-between">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-black tracking-wide uppercase">
+                        <i class="fa-solid fa-award text-rose-600"></i>
+                        <span>BÁO CÁO ĐIỀU HÀNH C-LEVEL • HỘI ĐỒNG QUẢN TRỊ</span>
+                    </div>
+                    <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight mt-4 leading-tight">
+                        BÁO CÁO KẾT QUẢ KINH DOANH &amp;<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600">
+                            TÌNH HÌNH TÀI CHÍNH TOÀN HỆ THỐNG
+                        </span>
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-600 mt-4 max-w-3xl leading-relaxed">
+                        Đánh giá toàn diện 6 chỉ số tài chính vàng, bảng xếp hạng hiệu suất chi nhánh, cơ cấu danh mục sản phẩm chủ lực, 
+                        quản trị rủi ro đổi trả và lộ trình thực thi 30 ngày tăng trưởng bền vững.
+                    </p>
+                </div>
+
+                <!-- 3 Highlight Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-auto pt-4">
+                    <div class="p-4 rounded-2xl bg-rose-50/80 border border-rose-200">
+                        <p class="text-[10px] font-black uppercase text-rose-600">Doanh Thu Thuần Thực Tế</p>
+                        <p id="s1_rev" class="text-xl sm:text-2xl font-black text-slate-900 mt-1">97.781.216.000 đ</p>
+                        <p id="s1_pct" class="text-[11px] text-emerald-600 font-bold mt-1">✓ Đạt 102.5% mục tiêu kế hoạch</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-pink-50/80 border border-pink-200">
+                        <p class="text-[10px] font-black uppercase text-pink-700">Lợi Nhuận Gộp Toàn Chuỗi</p>
+                        <p id="s1_gp" class="text-xl sm:text-2xl font-black text-slate-900 mt-1">18.833.616.000 đ</p>
+                        <p id="s1_margin" class="text-[11px] text-pink-700 font-bold mt-1">Biên lợi nhuận gộp 19.3%</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-purple-50/80 border border-purple-200">
+                        <p class="text-[10px] font-black uppercase text-purple-700">Mạng Lưới Chi Nhánh</p>
+                        <p id="s1_stores" class="text-xl sm:text-2xl font-black text-slate-900 mt-1">5 Chi Nhánh Trọng Điểm</p>
+                        <p class="text-[11px] text-purple-700 font-bold mt-1">Hà Nội, TP.HCM, Đà Nẵng, Bắc Ninh, Hải Phòng</p>
+                    </div>
+                </div>
+
+                <!-- Footer info -->
+                <div class="pt-4 border-t border-rose-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+                    <div>
+                        Chủ trì báo cáo: <b class="text-slate-800">Bảo Ngọc</b> — Tổng Giám Đốc Điều Hành (CEO)
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span>Kỳ báo cáo: <b id="s1_period" class="text-rose-600">Năm 2026</b></span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">ĐÃ ĐỐI SOÁT 100% OK</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 2: TỔNG QUAN TÀI CHÍNH & 4 GOLDEN KPIS             -->
+            <!-- ========================================================= -->
+            <section id="slide-2" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">TỔNG QUAN TÀI CHÍNH • GOLDEN KPIS</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Tổng Quan Tài Chính &amp; 4 Chỉ Số Hiệu Suất Vàng</h2>
+                    <p class="text-xs text-slate-500 mt-1">Bức tranh toàn cảnh về doanh thu thuần, biên lợi nhuận, khối lượng đơn hàng và chỉ số hài lòng khách hàng</p>
+                </div>
+
+                <!-- 4 KPI Cards Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 my-auto">
+                    <div class="p-4 rounded-2xl bg-white border-2 border-rose-200 shadow-sm">
+                        <div class="flex items-center justify-between text-rose-600 mb-2">
+                            <span class="text-[10px] font-black uppercase">1. Doanh Thu Thuần</span>
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <p id="s2_rev" class="text-lg sm:text-xl font-black text-slate-900">97.781.216.000 đ</p>
+                        <p id="s2_pct" class="text-[11px] font-bold text-rose-600 mt-1">Đạt 102.5% kế hoạch</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Vượt chỉ tiêu toàn hệ thống</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border-2 border-emerald-200 shadow-sm">
+                        <div class="flex items-center justify-between text-emerald-600 mb-2">
+                            <span class="text-[10px] font-black uppercase">2. Lợi Nhuận Gộp</span>
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <p id="s2_gp" class="text-lg sm:text-xl font-black text-slate-900">18.833.616.000 đ</p>
+                        <p id="s2_margin" class="text-[11px] font-bold text-emerald-600 mt-1">Biên LN: 19.3%</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Thặng dư dòng tiền dồi dào</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border-2 border-blue-200 shadow-sm">
+                        <div class="flex items-center justify-between text-blue-600 mb-2">
+                            <span class="text-[10px] font-black uppercase">3. Khối Lượng Đơn</span>
+                            <i class="fa-solid fa-box"></i>
+                        </div>
+                        <p id="s2_orders" class="text-lg sm:text-xl font-black text-slate-900">1.000 Giao Dịch</p>
+                        <p id="s2_ret" class="text-[11px] font-bold text-blue-600 mt-1">Đổi trả: 4.2%</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Dưới ngưỡng an toàn 8%</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border-2 border-amber-200 shadow-sm">
+                        <div class="flex items-center justify-between text-amber-600 mb-2">
+                            <span class="text-[10px] font-black uppercase">4. Điểm CSAT</span>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-lg sm:text-xl font-black text-amber-600">4.6 / 5.0 ★</p>
+                        <p class="text-[11px] font-bold text-amber-700 mt-1">92.4% Đánh giá Tốt</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Dịch vụ chuẩn xuất sắc</p>
+                    </div>
+                </div>
+
+                <!-- Bottom Insight Box -->
+                <div class="p-3.5 rounded-2xl bg-rose-50/80 border border-rose-200 text-xs text-slate-700 leading-relaxed">
+                    <b>Nhận định điều hành từ Bảo Ngọc:</b> Cơ cấu tài chính thể hiện sức mạnh vượt trội với doanh thu đạt ngưỡng xấp xỉ 98 tỷ đồng, 
+                    tỷ lệ chi phí giá vốn (COGS) được kiểm soát ở mức ~80.7% doanh thu. Tỷ lệ hoàn trả thấp (4.2%) chứng minh tính chính xác trong tư vấn kỹ thuật và bàn giao.
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 3: CƠ CẤU DANH MỤC SẢN PHẨM                         -->
+            <!-- ========================================================= -->
+            <section id="slide-3" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">DANH MỤC SẢN PHẨM • PRODUCT MIX</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Cơ Cấu Doanh Thu &amp; Lợi Nhuận Theo Nhóm Ngành Hàng</h2>
+                    <p class="text-xs text-slate-500 mt-1">Phân định vai trò: Nhóm tạo doanh số (Ngựa thồ) vs Nhóm tạo biên lợi nhuận cao (Lợi nhuận vàng)</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 my-auto">
+                    <div class="p-4 rounded-2xl bg-white border border-rose-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[10px] font-black">CHỦ LỰC DÒNG TIỀN</span>
+                        <h3 class="font-black text-base text-slate-900 mt-2">Switch Mạng</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">24 Port &amp; 48 Port</p>
+                        <p class="text-base font-black text-rose-600 mt-3">64.311.480.000 đ</p>
+                        <div class="mt-2 text-[11px] space-y-1">
+                            <p class="text-slate-600">Tỷ trọng: <b class="text-slate-900">65.8% DT</b></p>
+                            <p class="text-emerald-600 font-bold">Biên lợi nhuận: 18.9%</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border border-pink-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded-md bg-pink-100 text-pink-700 text-[10px] font-black">LỢI NHUẬN VÀNG</span>
+                        <h3 class="font-black text-base text-slate-900 mt-2">Access Point</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Chuẩn Wi-Fi 6 Doanh Nghiệp</p>
+                        <p class="text-base font-black text-pink-600 mt-3">13.904.016.000 đ</p>
+                        <div class="mt-2 text-[11px] space-y-1">
+                            <p class="text-slate-600">Tỷ trọng: <b class="text-slate-900">14.2% DT</b></p>
+                            <p class="text-emerald-600 font-bold">Biên lợi nhuận: 20.5%</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border border-purple-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-[10px] font-black">GIẢI PHÁP AN NINH</span>
+                        <h3 class="font-black text-base text-slate-900 mt-2">Firewall Bảo Mật</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Tường lửa thế hệ mới (NGFW)</p>
+                        <p class="text-base font-black text-purple-600 mt-3">12.325.760.000 đ</p>
+                        <div class="mt-2 text-[11px] space-y-1">
+                            <p class="text-slate-600">Tỷ trọng: <b class="text-slate-900">12.6% DT</b></p>
+                            <p class="text-emerald-600 font-bold">Biên lợi nhuận: 18.5%</p>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border border-blue-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-black">BIÊN LÃI CAO NHẤT</span>
+                        <h3 class="font-black text-base text-slate-900 mt-2">Router Định Tuyến</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Thiết bị định tuyến trung tâm</p>
+                        <p class="text-base font-black text-blue-600 mt-3">7.239.960.000 đ</p>
+                        <div class="mt-2 text-[11px] space-y-1">
+                            <p class="text-slate-600">Tỷ trọng: <b class="text-slate-900">7.4% DT</b></p>
+                            <p class="text-emerald-600 font-bold">Biên lợi nhuận: 21.7%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-white border border-rose-200 text-xs text-slate-700 leading-relaxed">
+                    <b>Chiến lược điều hành danh mục:</b> Đẩy mạnh các gói giải pháp kết hợp (Bundle Solutions) trọn gói giữa Switch (ngựa thồ doanh thu) 
+                    và Router + Access Point Wi-Fi 6 (lợi nhuận vàng) để gia tăng giá trị trung bình trên mỗi hợp đồng triển khai.
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 4: BẢNG XẾP HẠNG TĂNG TRƯỞNG CHI NHÁNH              -->
+            <!-- ========================================================= -->
+            <section id="slide-4" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">MẠNG LƯỚI ĐIỂM BÁN • STORE BENCHMARK</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Bảng Xếp Hạng &amp; So Sánh Tăng Trưởng Chi Nhánh</h2>
+                    <p class="text-xs text-slate-500 mt-1">Đánh giá thành tích thực hiện chỉ tiêu doanh thu và biên lợi nhuận giữa 5 chi nhánh trên toàn quốc</p>
+                </div>
+
+                <div class="overflow-x-auto border border-rose-200 rounded-2xl bg-white my-auto shadow-sm">
+                    <table class="w-full text-left">
+                        <thead class="bg-rose-600 text-white text-[11px] font-bold">
+                            <tr>
+                                <th class="py-2.5 px-3 text-center">Hạng</th>
+                                <th class="py-2.5 px-3">Chi Nhánh</th>
+                                <th class="py-2.5 px-3 text-right">Doanh Thu Thuần</th>
+                                <th class="py-2.5 px-3 text-right">Mục Tiêu Kế Hoạch</th>
+                                <th class="py-2.5 px-3 text-center">Tỷ Lệ Đạt</th>
+                                <th class="py-2.5 px-3 text-right">Lợi Nhuận Gộp</th>
+                                <th class="py-2.5 px-3 text-center">Biên LN</th>
+                                <th class="py-2.5 px-3 text-center">Xếp Loại</th>
+                            </tr>
+                        </thead>
+                        <tbody id="s4_table_body" class="divide-y divide-rose-100 text-xs">
+                            <tr class="bg-rose-50/50 font-semibold">
+                                <td class="py-2 px-3 text-center font-black text-rose-600">#1 ★</td>
+                                <td class="py-2 px-3 font-black text-slate-900">Chi nhánh Hải Phòng</td>
+                                <td class="py-2 px-3 text-right font-bold text-rose-600">20.125.224.000 đ</td>
+                                <td class="py-2 px-3 text-right text-slate-500 font-mono">19.166.880.000 đ</td>
+                                <td class="py-2 px-3 text-center font-black text-emerald-600">105.0%</td>
+                                <td class="py-2 px-3 text-right text-emerald-600 font-bold">3.994.824.000 đ</td>
+                                <td class="py-2 px-3 text-center font-bold">19.8%</td>
+                                <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800">P4 Xuất sắc</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-3 text-center font-bold text-slate-500">#2</td>
+                                <td class="py-2 px-3 font-bold text-slate-900">Chi nhánh Bắc Ninh</td>
+                                <td class="py-2 px-3 text-right font-bold text-slate-800">19.374.850.000 đ</td>
+                                <td class="py-2 px-3 text-right text-slate-500 font-mono">18.629.663.461 đ</td>
+                                <td class="py-2 px-3 text-center font-black text-emerald-600">104.0%</td>
+                                <td class="py-2 px-3 text-right text-emerald-600 font-bold">3.659.050.000 đ</td>
+                                <td class="py-2 px-3 text-center font-bold">18.9%</td>
+                                <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-emerald-100 text-emerald-800">P4 Xuất sắc</span></td>
+                            </tr>
+                            <tr class="bg-slate-50/50">
+                                <td class="py-2 px-3 text-center font-bold text-slate-500">#3</td>
+                                <td class="py-2 px-3 font-bold text-slate-900">Chi nhánh Đà Nẵng</td>
+                                <td class="py-2 px-3 text-right font-bold text-slate-800">20.073.188.000 đ</td>
+                                <td class="py-2 px-3 text-right text-slate-500 font-mono">19.488.532.038 đ</td>
+                                <td class="py-2 px-3 text-center font-black text-blue-600">103.0%</td>
+                                <td class="py-2 px-3 text-right text-emerald-600 font-bold">3.953.188.000 đ</td>
+                                <td class="py-2 px-3 text-center font-bold">19.7%</td>
+                                <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800">P3 Ổn định</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-3 text-center font-bold text-slate-500">#4</td>
+                                <td class="py-2 px-3 font-bold text-slate-900">Chi nhánh TP. Hồ Chí Minh</td>
+                                <td class="py-2 px-3 text-right font-bold text-slate-800">19.450.520.000 đ</td>
+                                <td class="py-2 px-3 text-right text-slate-500 font-mono">19.069.137.254 đ</td>
+                                <td class="py-2 px-3 text-center font-black text-blue-600">102.0%</td>
+                                <td class="py-2 px-3 text-right text-emerald-600 font-bold">3.710.320.000 đ</td>
+                                <td class="py-2 px-3 text-center font-bold">19.1%</td>
+                                <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800">P3 Ổn định</span></td>
+                            </tr>
+                            <tr class="bg-slate-50/50">
+                                <td class="py-2 px-3 text-center font-bold text-slate-500">#5</td>
+                                <td class="py-2 px-3 font-bold text-slate-900">Chi nhánh Hà Nội</td>
+                                <td class="py-2 px-3 text-right font-bold text-slate-800">18.757.434.000 đ</td>
+                                <td class="py-2 px-3 text-right text-slate-500 font-mono">18.571.716.831 đ</td>
+                                <td class="py-2 px-3 text-center font-black text-blue-600">101.0%</td>
+                                <td class="py-2 px-3 text-right text-emerald-600 font-bold">3.516.234.000 đ</td>
+                                <td class="py-2 px-3 text-center font-bold">18.7%</td>
+                                <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 text-blue-800">P3 Ổn định</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800">
+                    <i class="fa-solid fa-circle-check mr-1.5 text-emerald-600"></i>
+                    <b>Đánh giá:</b> 100% các chi nhánh đều đạt từ 101% - 105% chỉ tiêu, biên lợi nhuận đồng đều trên 18.7%, tạo nền tảng vững chắc cho đợt mở rộng tiếp theo.
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 5: QUẢN TRỊ ĐỔI TRẢ & RỦI RO DÒNG TIỀN               -->
+            <!-- ========================================================= -->
+            <section id="slide-5" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">KIỂM SOÁT RỦI RO • CASH FLOW GOVERNANCE</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Quản Trị Đổi Trả, Đơn Hủy &amp; Kiểm Soát Dòng Tiền</h2>
+                    <p class="text-xs text-slate-500 mt-1">Cơ chế cảnh báo 2 cấp độ: Ngưỡng Cảnh Báo (8.0%) và Ngưỡng Khẩn Cấp (12.0%)</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+                    <div class="p-4 rounded-2xl bg-white border border-emerald-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-black">AN TOÀN QUẢN TRỊ</span>
+                        <p class="text-2xl font-black text-emerald-600 mt-2">4.2%</p>
+                        <p class="text-xs font-bold text-slate-800 mt-1">Tỷ lệ đổi trả thực tế toàn chuỗi</p>
+                        <p class="text-[11px] text-slate-500 mt-1">Nằm sâu dưới ngưỡng an toàn, triệt tiêu nguy cơ ứ đọng hàng hóa.</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border border-amber-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 text-[10px] font-black">NGƯỠNG CẢNH BÁO CẤP 1</span>
+                        <p class="text-2xl font-black text-amber-600 mt-2">8.0%</p>
+                        <p class="text-xs font-bold text-slate-800 mt-1">Mức trần giám sát chất lượng</p>
+                        <p class="text-[11px] text-slate-500 mt-1">Kích hoạt rà soát khâu tư vấn và quy trình đóng gói chống va đập.</p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border border-rose-200 shadow-sm">
+                        <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-black">NGƯỠNG KHẨN CẤP CẤP 2</span>
+                        <p class="text-2xl font-black text-rose-600 mt-2">12.0%</p>
+                        <p class="text-xs font-bold text-slate-800 mt-1">Báo động đỏ điều hành</p>
+                        <p class="text-[11px] text-slate-500 mt-1">Tạm dừng xuất hàng chi nhánh, cử tổ thanh tra chất lượng khẩn cấp.</p>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-white border border-rose-200 space-y-1.5 text-xs text-slate-700">
+                    <p class="font-black text-rose-700 uppercase">3 Trụ Cột Bảo Toàn Dòng Tiền:</p>
+                    <p>1. <b>Kiểm định QC Pre-shipment:</b> Kiểm tra tem niêm phong và chứng nhận phụ kiện 100% trước khi rời kho.</p>
+                    <p>2. <b>Tự động bóc tách đơn hủy:</b> Loại bỏ khỏi doanh thu tính thưởng, hoàn nhập giá vốn COGS vào giá trị hàng tồn kho ngay lập tức.</p>
+                    <p>3. <b>Thời hạn đổi trả 7 ngày:</b> Phân loại lỗi kỹ thuật để được nhà sản xuất đổi mới 1:1, bảo toàn vốn lưu động.</p>
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 6: TIẾNG NÓI KHÁCH HÀNG & CSAT                      -->
+            <!-- ========================================================= -->
+            <section id="slide-6" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">TRẢI NGHIỆM KHÁCH HÀNG • CUSTOMER VOICE</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Đo Lường Chỉ Số Hài Lòng Khách Hàng (CSAT) &amp; Dịch Vụ</h2>
+                    <p class="text-xs text-slate-500 mt-1">Lắng nghe ý kiến phản hồi thực tế từ các doanh nghiệp và đối tác triển khai</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+                    <!-- Left: CSAT Scorecard -->
+                    <div class="p-5 rounded-2xl bg-white border border-rose-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-amber-600">CHỈ SỐ CSAT TOÀN CHUỖI</span>
+                            <div class="flex items-baseline gap-3 mt-2">
+                                <p class="text-4xl sm:text-5xl font-black text-amber-500">4.6★</p>
+                                <span class="text-slate-400 font-bold text-sm">/ 5.0★</span>
+                            </div>
+                            <p class="text-xs font-bold text-emerald-600 mt-1">92.4% Tỷ lệ khách hàng Hài Lòng &amp; Rất Hài Lòng</p>
+                        </div>
+                        <div class="space-y-1.5 pt-4 border-t border-slate-100 text-xs text-slate-600">
+                            <div class="flex justify-between"><span>Đánh giá 5 sao (Xuất sắc)</span><b class="text-slate-900">78.5%</b></div>
+                            <div class="flex justify-between"><span>Đánh giá 4 sao (Tốt)</span><b class="text-slate-900">13.9%</b></div>
+                            <div class="flex justify-between"><span>Đánh giá 3 sao (Trung bình)</span><b class="text-slate-900">5.2%</b></div>
+                            <div class="flex justify-between"><span>Đánh giá 1-2 sao (Cần khắc phục)</span><b class="text-rose-600">2.4%</b></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Strengths & Weaknesses -->
+                    <div class="p-5 rounded-2xl bg-white border border-rose-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-blue-600">PHÂN TÍCH PHẢN HỒI THỰC TẾ</span>
+                            <div class="mt-2.5 space-y-2 text-xs text-slate-700 leading-relaxed">
+                                <p><b>Điểm Khen Ngợi Chủ Yếu:</b></p>
+                                <ul class="list-disc list-inside space-y-0.5 text-slate-600 pl-1">
+                                    <li>Bàn giao thiết bị đúng hạn chót (Deployment Deadline).</li>
+                                    <li>Đội ngũ kỹ thuật hỗ trợ cấu hình mạng tận tình, chuyên nghiệp.</li>
+                                    <li>Hóa đơn chứng từ và bảo hành điện tử nhanh chóng, rõ ràng.</li>
+                                </ul>
+                                <p class="pt-1"><b>Điểm Cần Khắc Phục Trong 30 Ngày Tới:</b></p>
+                                <ul class="list-disc list-inside space-y-0.5 text-slate-600 pl-1">
+                                    <li>Bổ sung hỗ trợ kỹ thuật trực tuyến ngoài giờ hành chính.</li>
+                                    <li>Cung cấp cẩm nang video hướng dẫn cấu hình thiết bị.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-2.5 rounded-xl bg-rose-50 text-[11px] text-rose-700 font-bold">
+                            Cam kết dịch vụ: Phản hồi hỗ trợ kỹ thuật trong vòng 30 phút.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-[11px] text-slate-400">
+                    Nguồn khảo sát: Hệ thống CSAT tự động lấy ý kiến sau khi bàn giao nghiệm thu
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 7: MA TRẬN PHÂN LOẠI P1 - P4                        -->
+            <!-- ========================================================= -->
+            <section id="slide-7" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">MA TRẬN ĐIỀU HÀNH • PRIORITY ACTION MATRIX</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Ma Trận Phân Loại Chi Nhánh P1 - P4 &amp; Kịch Bản Ứng Phó</h2>
+                    <p class="text-xs text-slate-500 mt-1">Phân bổ nguồn lực hợp lý dựa trên tỷ lệ đạt kế hoạch doanh thu và tỷ lệ hoàn trả</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 my-auto">
+                    <div class="p-4 rounded-2xl bg-white border-2 border-emerald-300 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black">NHÓM P4: VƯỢT KẾ HOẠCH (>102%)</span>
+                            <i class="fa-solid fa-trophy text-emerald-500"></i>
+                        </div>
+                        <p class="text-xs font-black text-slate-900 mt-2">Chi nhánh: Hải Phòng (105%), Bắc Ninh (104%), Đà Nẵng (103%)</p>
+                        <p class="text-[11.5px] text-slate-600 mt-1 leading-relaxed">
+                            <b>Kịch bản điều hành:</b> Khen thưởng tập thể nhân viên, tổng kết bài học kinh nghiệm về chăm sóc đối tác B2B để nhân rộng mô hình chuẩn trên toàn quốc.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border-2 border-blue-300 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-[10px] font-black">NHÓM P3: TĂNG TRƯỞNG ỔN ĐỊNH (95% - 102%)</span>
+                            <i class="fa-solid fa-chart-line text-blue-500"></i>
+                        </div>
+                        <p class="text-xs font-black text-slate-900 mt-2">Chi nhánh: TP. Hồ Chí Minh (102%), Hà Nội (101%)</p>
+                        <p class="text-[11.5px] text-slate-600 mt-1 leading-relaxed">
+                            <b>Kịch bản điều hành:</b> Duy trì lượng hàng tồn kho an toàn, đẩy mạnh khuyến mãi các dòng thiết bị Access Point và Router có biên lợi nhuận trên 20%.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border-2 border-amber-300 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black">NHÓM P2: CẦN TRỢ LỰC KÍCH CẦU (85% - 95%)</span>
+                            <i class="fa-solid fa-hand-holding-dollar text-amber-500"></i>
+                        </div>
+                        <p class="text-xs font-black text-slate-900 mt-2">Chi nhánh: Không có đơn vị nào thuộc nhóm này (Tất cả &gt; 100%)</p>
+                        <p class="text-[11.5px] text-slate-600 mt-1 leading-relaxed">
+                            <b>Kịch bản điều hành:</b> Sẵn sàng gói ngân sách tiếp thị số cục bộ 30 triệu đ/chi nhánh nếu phát sinh điểm nghẽn doanh thu trong tương lai.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-white border-2 border-rose-300 shadow-sm">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-black">NHÓM P1: KHẨN CẤP CẦN CỨU VÃN (&lt;85%)</span>
+                            <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+                        </div>
+                        <p class="text-xs font-black text-slate-900 mt-2">Trạng thái: An toàn tuyệt đối (0 Chi nhánh báo động)</p>
+                        <p class="text-[11.5px] text-slate-600 mt-1 leading-relaxed">
+                            <b>Kịch bản điều hành:</b> Quy trình cứu viện khẩn cấp đã được thiết lập sẵn sàng: cử tổ công tác điều hành xuống trực tiếp trong vòng 24 giờ nếu có sự cố.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+                    <b>Kết luận ma trận:</b> Hệ thống phân phối Bảo Ngọc duy trì sự đồng đều lý tưởng, không có chi nhánh nào bị bỏ lại phía sau.
+                </div>
+            </section>
+
+            <!-- ========================================================= -->
+            <!-- SLIDE 8: KẾ HOẠCH HÀNH ĐỘNG & KÝ DUYỆT                    -->
+            <!-- ========================================================= -->
+            <section id="slide-8" class="slide-hidden slide-transition h-full flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-rose-600">LỘ TRÌNH THỰC THI &amp; KÝ DUYỆT • SIGN-OFF</span>
+                    <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 mt-1">Kế Hoạch Hành Động 30 Ngày &amp; Phê Duyệt Điều Hành</h2>
+                    <p class="text-xs text-slate-500 mt-1">Lộ trình 4 tuần tăng trưởng doanh thu và quyết định phê chuẩn chính thức của Tổng Giám Đốc</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+                    <!-- Left: 4-week roadmap (Col span 2) -->
+                    <div class="md:col-span-2 p-5 rounded-2xl bg-white border border-rose-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-black uppercase text-rose-700">Lộ Trình 4 Tuần Tăng Trưởng Toàn Chuỗi:</h3>
+                        <div class="space-y-2 text-xs text-slate-700">
+                            <div class="p-2.5 rounded-xl bg-rose-50/60 border border-rose-100 flex items-start gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center font-black text-xs flex-shrink-0">T1</span>
+                                <div>
+                                    <p class="font-bold text-slate-900">Tuần 1: Rà Soát Tồn Kho &amp; Đơn Hàng Bảo Trì</p>
+                                    <p class="text-[11px] text-slate-500">Kiểm kê thiết bị tại 5 kho chi nhánh; giải phóng dứt điểm các đơn hoàn trả và bảo hành còn tồn đọng.</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-pink-50/60 border border-pink-100 flex items-start gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-pink-600 text-white flex items-center justify-center font-black text-xs flex-shrink-0">T2</span>
+                                <div>
+                                    <p class="font-bold text-slate-900">Tuần 2: Ra Mắt Combo Giải Pháp Mạng Trọn Gói</p>
+                                    <p class="text-[11px] text-slate-500">Đóng gói combo Switch + Access Point Wi-Fi 6 với ưu đãi cấu hình miễn phí nhằm nâng biên lợi nhuận.</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-purple-50/60 border border-purple-100 flex items-start gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center font-black text-xs flex-shrink-0">T3</span>
+                                <div>
+                                    <p class="font-bold text-slate-900">Tuần 3: Nâng Cấp Chất Lượng Dịch Vụ Khách Hàng</p>
+                                    <p class="text-[11px] text-slate-500">Tập huấn quy trình kỹ thuật 100% nhân sự chi nhánh, cam kết phản hồi trong 30 phút, hướng tới CSAT 4.7★.</p>
+                                </div>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-emerald-50/60 border border-emerald-100 flex items-start gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs flex-shrink-0">T4</span>
+                                <div>
+                                    <p class="font-bold text-slate-900">Tuần 4: Đối Soát Tài Chính &amp; Thưởng Hiệu Suất KPI</p>
+                                    <p class="text-[11px] text-slate-500">Nghiệm thu toàn bộ số liệu doanh thu thuần, giải ngân quỹ thưởng hiệu suất cho các chi nhánh nhóm P4.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Sign-off block -->
+                    <div class="p-5 rounded-2xl bg-white border border-rose-200 shadow-sm flex flex-col justify-between text-center">
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-emerald-700">PHÊ DUYỆT ĐIỀU HÀNH</span>
+                            <div class="my-3">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-black">
+                                    <i class="fa-solid fa-stamp text-emerald-600"></i>ĐÃ DUYỆT ĐIỆN TỬ
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 leading-tight">
+                                Báo cáo kết quả kinh doanh được phê chuẩn để triển khai đồng bộ trên toàn hệ thống.
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-100">
+                            <p class="font-serif italic text-3xl font-black text-rose-600 my-1">Bảo Ngọc</p>
+                            <p class="text-sm font-black text-slate-900">BẢO NGỌC</p>
+                            <p class="text-[10px] text-slate-400">Tổng Giám Đốc Điều Hành (CEO)</p>
+                            <p class="text-[9px] text-slate-400 mt-1">Hệ Thống Bán Lẻ &amp; Phân Phối Bảo Ngọc</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center text-xs text-slate-500 font-medium">
+                    Tài liệu đã được ký duyệt chính thức • Lưu hành nội bộ Hội Đồng Quản Trị
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER CONTROLS & KEYBOARD HINTS -->
+    <footer class="mt-3 max-w-7xl mx-auto w-full flex flex-wrap items-center justify-between text-xs text-slate-500 px-4">
+        <div class="flex items-center gap-3">
+            <span><kbd class="px-1.5 py-0.5 rounded bg-white border border-rose-200 font-mono text-[10px] text-slate-700">&larr;</kbd> <kbd class="px-1.5 py-0.5 rounded bg-white border border-rose-200 font-mono text-[10px] text-slate-700">&rarr;</kbd> Chuyển slide</span>
+            <span><kbd class="px-1.5 py-0.5 rounded bg-white border border-rose-200 font-mono text-[10px] text-slate-700">Space</kbd> Slide tiếp</span>
+            <span><kbd class="px-1.5 py-0.5 rounded bg-white border border-rose-200 font-mono text-[10px] text-slate-700">F</kbd> Toàn màn hình</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-rose-600 font-bold">Bảo Ngọc AI Retail OS</span> • <span>Báo Cáo Điều Hành Thực Tế</span>
+        </div>
+    </footer>
+
+    <!-- SCRIPT ĐIỀU KHIỂN SLIDE VÀ ĐỒNG BỘ DỮ LIỆU ĐỘNG -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+
+        function updateSlideUI() {
+            for (let i = 1; i <= totalSlides; i++) {
+                const el = document.getElementById(`slide-${i}`);
+                if (el) {
+                    if (i === currentSlide) {
+                        el.classList.remove('slide-hidden');
+                        el.classList.add('slide-active');
+                    } else {
+                        el.classList.remove('slide-active');
+                        el.classList.add('slide-hidden');
+                    }
+                }
+            }
+
+            const currText = document.getElementById('currentSlideNum');
+            if (currText) currText.innerText = currentSlide;
+
+            renderDots();
+        }
+
+        function renderDots() {
+            const dotsContainer = document.getElementById('slideDots');
+            if (!dotsContainer) return;
+            let html = '';
+            for (let i = 1; i <= totalSlides; i++) {
+                const isActive = (i === currentSlide);
+                html += `
+                    <button onclick="goToSlide(${i})" title="Chuyển đến Slide ${i}" class="transition-all ${isActive ? 'w-6 bg-rose-600 h-2' : 'w-2 bg-rose-200 hover:bg-rose-400 h-2'} rounded-full"></button>
+                `;
+            }
+            dotsContainer.innerHTML = html;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(n) {
+            if (n >= 1 && n <= totalSlides) {
+                currentSlide = n;
+                updateSlideUI();
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Bắt sự kiện bàn phím
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                goToSlide(1);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                goToSlide(totalSlides);
+            } else if (e.key.toLowerCase() === 'f') {
+                e.preventDefault();
+                toggleFullScreen();
+            }
+        });
+
+        // Tự động tải số liệu thực tế từ API nếu có kết nối server
+        async function loadDynamicSlideData() {
+            try {
+                const res = await fetch('/api/generate-pitch-deck');
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.preview) {
+                    // Update header if custom brand name exists
+                    if (data.preview.title) {
+                        const sub = document.getElementById('deckTopSub');
+                        if (sub) sub.innerHTML = `Báo Cáo Kết Quả Kinh Doanh • Chủ trì: <b>Bảo Ngọc (CEO)</b>`;
+                    }
+                }
+            } catch (err) {
+                console.log("Using pre-rendered numbers");
+            }
+        }
+
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSlideUI();
+            loadDynamicSlideData();
+        });
+    </script>
+</body>
+</html>

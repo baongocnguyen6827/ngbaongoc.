@@ -1,0 +1,19 @@
+{
+  "business_type": "Đại lý phân phối Sữa & Thực phẩm tiêu dùng (FMCG)",
+  "context": "Bạn là chuyên viên BI của một đại lý bán sữa tại Hà Nội. Ban quản lý cần dashboard theo dõi hiệu quả kinh doanh năm 2025 tại 11 quận/huyện để phát hiện xu hướng, sản phẩm/khu vực/kênh bán hiệu quả và vấn đề cần xử lý.",
+  "additional_info": "Mạng lưới 11 quận/huyện tại Hà Nội: Ba Đình, Cầu Giấy, Đống Đa, Hai Bà Trưng, Hoàn Kiếm, Hoàng Mai, Long Biên, Nam Từ Liêm, Bắc Từ Liêm, Hà Đông, Thanh Xuân; 7 danh mục sản phẩm sữa; đối soát 1.000 đơn hàng năm 2025.",
+  "analysis_questions": [
+    "Kết quả doanh thu thuần và lợi nhuận gộp toàn chuỗi đại lý sữa đạt bao nhiêu so với mục tiêu?",
+    "Xu hướng doanh thu và lợi nhuận gộp biến động theo từng tháng trong năm 2025 như thế nào?",
+    "Danh mục sản phẩm sữa nào (Sữa bột, Sữa tươi, Sữa chua, Sữa hạt, Sữa đặc...) đóng góp doanh thu lớn nhất?",
+    "Những danh mục hoặc thương hiệu sữa nào có biên lợi nhuận gộp thấp (<15%) cần rà soát giá vốn và chiết khấu?",
+    "Hiệu quả kinh doanh giữa 11 quận/huyện tại Hà Nội ra sao, quận nào dẫn đầu và quận nào cần can thiệp hỗ trợ?",
+    "Các quận/huyện có hiệu suất thấp (Hoàn Kiếm, Hoàng Mai, Nam Từ Liêm) gặp rào cản gì và kế hoạch cải thiện là gì?",
+    "Hiệu quả doanh thu và lợi nhuận theo từng kênh bán hàng (Đại lý, Cửa hàng tiện lợi, Siêu thị, Bán lẻ trực tiếp) thế nào?",
+    "Cơ cấu doanh thu theo phân loại khách hàng (Khách sỉ, Khách lẻ, Nhà trẻ/Trường học, Hộ gia đình) ra sao?",
+    "Top những sản phẩm sữa bán chạy nhất và sản phẩm tồn kho chậm luân chuyển là gì?",
+    "Kế hoạch hành động cụ thể cho Chủ đại lý và Quản lý kinh doanh trong quý tới để tối ưu dòng tiền và tăng biên lợi nhuận?"
+  ],
+  "is_confirmed": true,
+  "updated_at": "2026-11-20 15:33:15"
+}
